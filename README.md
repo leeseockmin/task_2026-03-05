@@ -198,7 +198,7 @@ https://localhost:{포트}/swagger
 | 인터페이스 | `I` + PascalCase | `IEmployeeQueryRepository` |
 | 비동기 메서드 | `Async` 접미사 필수 | `CreateEmployeeAsync` |
 | Command / Query / DTO | `record` 타입 | `public record CreateEmployeeCommand(...)` |
-| Entity 만 예외적으로 | camelCase 사용 |
+| Entity 컬럼 프로퍼티 | camelCase (예외) | `employeeId`, `createdAt` |
 
 ### 절대 금지 사항
 

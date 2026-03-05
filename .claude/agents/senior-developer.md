@@ -171,6 +171,7 @@ Project.sln
 | 인터페이스 | `I` + PascalCase | `IUserRepository` |
 | 비동기 메서드 | `Async` 접미사 필수 | `CreateUserAsync` |
 | Command / Query DTO | `record` 타입 | `public record CreateUserCommand(...)` |
+| Entity 컬럼 프로퍼티 | camelCase (예외) | `employeeId`, `createdAt` |
 | 날짜/시간 타입 | `DateTime` 사용 | `DateOnly` / `TimeOnly` 사용 금지 |
 | 조건문 중괄호 | 한 줄이라도 `{}` 필수 | 중괄호 생략 금지 |
 | SQL 문자열 | `@"..."` verbatim string 사용 | `"""..."""` raw string literal 사용 금지 |

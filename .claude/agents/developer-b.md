@@ -355,6 +355,7 @@ public class ProductsController : ControllerBase
 - [ ] 컨트롤러에 비즈니스 로직 없음
 - [ ] `.Result` / `.Wait()` 미사용
 - [ ] `Console.WriteLine` 미사용
+- [ ] Entity 컬럼 프로퍼티는 camelCase 사용 (`employeeId`, `createdAt` 등)
 - [ ] 날짜·시간 타입 `DateTime` 사용 (`DateOnly` / `TimeOnly` 사용 금지)
 - [ ] 조건문 한 줄이라도 `{}` 사용 (생략 금지)
 - [ ] 에러 반환(`BadRequest`, `NotFound` 등) 전 `_logger.LogWarning/LogError` 호출
