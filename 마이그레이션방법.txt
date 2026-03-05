@@ -1,0 +1,5 @@
+Add-Migration InitialCreate -Context AccountDBContext -Project DB.Data -OutputDir "Migrations\AccountMigrations" -> 바뀐 데이터 추가
+Update-Database -Context AccountDBContext -Project DB.Data -StartupProject BackEnd -> DB에 갱신
+
+
+Script-Migration -From 0 -To CreateAccountLink -> 스크립트로 따로 뽑아서 확인용
