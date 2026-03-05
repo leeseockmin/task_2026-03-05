@@ -104,6 +104,7 @@ bundleconfig.json.bak
 # ---------------------------------------------------------------
 # 환경 설정 / 시크릿 (절대 커밋 금지)
 # ---------------------------------------------------------------
+appsettings.json
 appsettings.Development.json
 appsettings.Local.json
 appsettings.Production.json
