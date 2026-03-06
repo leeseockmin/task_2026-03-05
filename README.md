@@ -129,7 +129,7 @@ BackEnd/appsettings.json
 
 ## 3. Migration 적용
 
-서버는 **시작 시점에 미적용 Migration이 있으면 자동으로 실행을 중단**합니다.
+서버는 **시작 시점에 미적용 Migration이 있으면 자동으로 실행을 중단(아래에 UpdateMigration 확인)**합니다.
 최초 실행 또는 Migration이 변경된 경우 아래 두 가지 방법 중 하나로 적용하세요.
 
 ---
