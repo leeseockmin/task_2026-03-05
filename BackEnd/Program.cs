@@ -1,5 +1,7 @@
+using BackEnd.Application.Interfaces;
 using BackEnd.Application.Interfaces.Employee;
 using BackEnd.Infrastructure.DataBase;
+using BackEnd.Infrastructure.Logging;
 using BackEnd.Infrastructure.Persistence.Read;
 using BackEnd.Infrastructure.Repositories;
 using DB.Data.AccountDB;
@@ -56,6 +58,14 @@ builder.Services.AddKeyedSingleton<IDbContextFactory<AccountDBContext>>("Read", 
 
 
 builder.Services.AddSingleton<DataBaseManager>();
+
+// MongoDB
+builder.Services.AddSingleton<MongoDB.Driver.IMongoClient>(_ =>
+    new MongoDB.Driver.MongoClient(builder.Configuration.GetConnectionString("MongoDB")));
+builder.Services.AddSingleton(sp =>
+    sp.GetRequiredService<MongoDB.Driver.IMongoClient>()
+      .GetDatabase(builder.Configuration["MongoDB:DatabaseName"]));
+builder.Services.AddSingleton<IMongoLogService, MongoLogService>();
 
 RepositoryServiceRegistration.AddRepositories(builder.Services);
 

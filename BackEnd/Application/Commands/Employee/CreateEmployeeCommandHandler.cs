@@ -1,4 +1,5 @@
 using BackEnd.Application.Constants;
+using BackEnd.Application.Interfaces;
 using BackEnd.Application.Interfaces.Employee;
 using BackEnd.Application.Utils;
 using MediatR;
@@ -9,13 +10,16 @@ namespace BackEnd.Application.Commands.Employee
     public class CreateEmployeeCommandHandler : IRequestHandler<CreateEmployeeCommand, int>
     {
         private readonly IEmployeeCommandRepository _commandRepository;
+        private readonly IMongoLogService _mongoLogService;
         private readonly ILogger<CreateEmployeeCommandHandler> _logger;
 
         public CreateEmployeeCommandHandler(
             IEmployeeCommandRepository commandRepository,
+            IMongoLogService mongoLogService,
             ILogger<CreateEmployeeCommandHandler> logger)
         {
             _commandRepository = commandRepository;
+            _mongoLogService = mongoLogService;
             _logger = logger;
         }
 
@@ -81,6 +85,7 @@ namespace BackEnd.Application.Commands.Employee
             }
 
             var insertedCount = await _commandRepository.BulkInsertAsync(employees);
+            await _mongoLogService.LogAsync("Employee", "CREATE", employees);
             return insertedCount;
         }
     }

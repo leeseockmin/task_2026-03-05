@@ -1,5 +1,6 @@
 using BackEnd.Application.Commands.Employee;
 using BackEnd.Application.DTOs.Employee;
+using BackEnd.Application.Interfaces;
 using BackEnd.Application.Interfaces.Employee;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -17,15 +18,18 @@ namespace BackEnd.Tests.Commands
     public class CreateEmployeeCommandHandlerTests
     {
         private readonly Mock<IEmployeeCommandRepository> _mockCommandRepository;
+        private readonly Mock<IMongoLogService> _mockMongoLogService;
         private readonly Mock<ILogger<CreateEmployeeCommandHandler>> _mockLogger;
         private readonly CreateEmployeeCommandHandler _handler;
 
         public CreateEmployeeCommandHandlerTests()
         {
             _mockCommandRepository = new Mock<IEmployeeCommandRepository>();
+            _mockMongoLogService = new Mock<IMongoLogService>();
             _mockLogger = new Mock<ILogger<CreateEmployeeCommandHandler>>();
             _handler = new CreateEmployeeCommandHandler(
                 _mockCommandRepository.Object,
+                _mockMongoLogService.Object,
                 _mockLogger.Object);
         }
 
