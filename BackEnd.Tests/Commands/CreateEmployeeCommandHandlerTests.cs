@@ -215,13 +215,13 @@ namespace BackEnd.Tests.Commands
         }
 
         /// <summary>
-        /// [실패] Name이 100자를 초과하는 경우(101자) — ArgumentException이 발생하고 BulkInsertAsync는 호출되지 않는다.
+        /// [실패] Name이 64자를 초과하는 경우(65자) — ArgumentException이 발생하고 BulkInsertAsync는 호출되지 않는다.
         /// </summary>
         [Fact]
-        public async Task Handle_NameExceeds100Characters_ThrowsArgumentException()
+        public async Task Handle_NameExceeds64Characters_ThrowsArgumentException()
         {
-            // Arrange — 101자 이름
-            var longName = new string('가', 101);
+            // Arrange — 65자 이름
+            var longName = new string('가', 65);
             var requests = new List<CreateEmployeeRequest>
             {
                 new CreateEmployeeRequest(longName, "hong@example.com", "01012345678", DateTime.UtcNow)
@@ -232,20 +232,20 @@ namespace BackEnd.Tests.Commands
             var ex = await Assert.ThrowsAsync<ArgumentException>(
                 () => _handler.Handle(command, CancellationToken.None));
 
-            Assert.Contains("name은 최대 100자까지 허용됩니다.", ex.Message);
+            Assert.Contains("name은 최대 64자까지 허용됩니다.", ex.Message);
             _mockCommandRepository.Verify(
                 r => r.BulkInsertAsync(It.IsAny<List<EmployeeEntity>>()),
                 Times.Never);
         }
 
         /// <summary>
-        /// [성공] Name이 정확히 100자인 경우(경계값) — 예외 없이 정상 처리된다.
+        /// [성공] Name이 정확히 64자인 경우(경계값) — 예외 없이 정상 처리된다.
         /// </summary>
         [Fact]
-        public async Task Handle_NameExactly100Characters_ProcessesSuccessfully()
+        public async Task Handle_NameExactly64Characters_ProcessesSuccessfully()
         {
-            // Arrange — 경계값: 정확히 100자는 허용되어야 합니다.
-            var maxName = new string('가', 100);
+            // Arrange — 경계값: 정확히 64자는 허용되어야 합니다.
+            var maxName = new string('가', 64);
             var requests = new List<CreateEmployeeRequest>
             {
                 new CreateEmployeeRequest(maxName, "hong@example.com", "01012345678", DateTime.UtcNow)
@@ -337,13 +337,13 @@ namespace BackEnd.Tests.Commands
         }
 
         /// <summary>
-        /// [실패] Email이 255자를 초과하는 경우(256자) — 정규식 검사 이전에 ArgumentException이 발생한다.
+        /// [실패] Email이 128자를 초과하는 경우(129자) — 정규식 검사 이전에 ArgumentException이 발생한다.
         /// </summary>
         [Fact]
-        public async Task Handle_EmailExceeds255Characters_ThrowsArgumentException()
+        public async Task Handle_EmailExceeds128Characters_ThrowsArgumentException()
         {
-            // Arrange — 256자 이메일 (로컬 파트 250자 + "@x.com" 6자 = 256자)
-            var localPart = new string('a', 250);
+            // Arrange — 129자 이메일 (로컬 파트 123자 + "@x.com" 6자 = 129자)
+            var localPart = new string('a', 123);
             var longEmail = $"{localPart}@x.com";
             var requests = new List<CreateEmployeeRequest>
             {
@@ -355,7 +355,7 @@ namespace BackEnd.Tests.Commands
             var ex = await Assert.ThrowsAsync<ArgumentException>(
                 () => _handler.Handle(command, CancellationToken.None));
 
-            Assert.Contains("email은 최대 255자까지 허용됩니다.", ex.Message);
+            Assert.Contains("email은 최대 128자까지 허용됩니다.", ex.Message);
             _mockCommandRepository.Verify(
                 r => r.BulkInsertAsync(It.IsAny<List<EmployeeEntity>>()),
                 Times.Never);
@@ -435,13 +435,13 @@ namespace BackEnd.Tests.Commands
         // =============================================
 
         /// <summary>
-        /// [실패] Tel이 하이픈 제거 후 20자를 초과하는 경우(21자) — ArgumentException이 발생하고 BulkInsertAsync는 호출되지 않는다.
+        /// [실패] Tel이 하이픈 제거 후 16자를 초과하는 경우(17자) — ArgumentException이 발생하고 BulkInsertAsync는 호출되지 않는다.
         /// </summary>
         [Fact]
-        public async Task Handle_TelExceeds20CharactersAfterHyphenRemoval_ThrowsArgumentException()
+        public async Task Handle_TelExceeds16CharactersAfterHyphenRemoval_ThrowsArgumentException()
         {
-            // Arrange — 하이픈 없이 21자
-            var longTel = "0" + new string('1', 20);
+            // Arrange — 하이픈 없이 17자
+            var longTel = new string('1', 17);
             var requests = new List<CreateEmployeeRequest>
             {
                 new CreateEmployeeRequest("홍길동", "hong@example.com", longTel, DateTime.UtcNow)
@@ -452,19 +452,19 @@ namespace BackEnd.Tests.Commands
             var ex = await Assert.ThrowsAsync<ArgumentException>(
                 () => _handler.Handle(command, CancellationToken.None));
 
-            Assert.Contains("tel은 하이픈 제거 후 최대 20자까지 허용됩니다.", ex.Message);
+            Assert.Contains("tel은 하이픈 제거 후 최대 16자까지 허용됩니다.", ex.Message);
             _mockCommandRepository.Verify(
                 r => r.BulkInsertAsync(It.IsAny<List<EmployeeEntity>>()),
                 Times.Never);
         }
 
         /// <summary>
-        /// [실패] Tel에 하이픈이 포함되어 있지만 제거 후에도 20자를 초과하는 경우 — ArgumentException이 발생한다.
+        /// [실패] Tel에 하이픈이 포함되어 있지만 제거 후에도 16자를 초과하는 경우 — ArgumentException이 발생한다.
         /// </summary>
         [Fact]
-        public async Task Handle_TelWithHyphensExceeds20CharactersAfterRemoval_ThrowsArgumentException()
+        public async Task Handle_TelWithHyphensExceeds16CharactersAfterRemoval_ThrowsArgumentException()
         {
-            // Arrange — 하이픈 포함이지만 제거 후 21자 초과 ("0" + "1111" * 5 = 21자)
+            // Arrange — 하이픈 포함이지만 제거 후 17자 초과 ("0" + "1111" * 5 = 21자)
             var longTelWithHyphens = "0-" + string.Join("-", Enumerable.Repeat("1111", 5));
             var requests = new List<CreateEmployeeRequest>
             {
@@ -482,13 +482,13 @@ namespace BackEnd.Tests.Commands
         }
 
         /// <summary>
-        /// [성공] Tel이 정확히 20자인 경우(경계값) — 예외 없이 정상 처리된다.
+        /// [성공] Tel이 정확히 16자인 경우(경계값) — 예외 없이 정상 처리된다.
         /// </summary>
         [Fact]
-        public async Task Handle_TelExactly20Characters_ProcessesSuccessfully()
+        public async Task Handle_TelExactly16Characters_ProcessesSuccessfully()
         {
-            // Arrange — 경계값: 정확히 20자는 허용되어야 합니다.
-            var maxTel = new string('1', 20);
+            // Arrange — 경계값: 정확히 16자는 허용되어야 합니다.
+            var maxTel = new string('1', 16);
             var requests = new List<CreateEmployeeRequest>
             {
                 new CreateEmployeeRequest("홍길동", "hong@example.com", maxTel, DateTime.UtcNow)

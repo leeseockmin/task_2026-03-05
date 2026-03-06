@@ -13,15 +13,15 @@ namespace DB.Data.AccountDB
         public int employeeId { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [StringLength(64)]
         public string name { get; set; }
 
         [Required]
-        [StringLength(255)]
+        [StringLength(128)]
         public string email { get; set; }
 
         [Required]
-        [StringLength(20)]
+        [StringLength(16)]
         public string tel { get; set; }
 
         public DateTime joined { get; set; }
@@ -32,7 +32,6 @@ namespace DB.Data.AccountDB
         {
             modelBuilder.Entity<Employee>()
                 .HasIndex(e => e.name)
-                .IsUnique()
                 .HasDatabaseName("IX_Employees_Name");
         }
     }

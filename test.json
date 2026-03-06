@@ -1,0 +1,5 @@
+[
+{  "name" : "김씨", "email" : "kim@kim.com" , "tel" : "010-1111-2424", "joined" : "2012-01-05"},
+{  "name" : "이씨", "email" : "Lee@kim.com" , "tel" : "010-1234-5678", "joined" : "2012-03-05"},
+{  "name" : "최씨", "email" : "Choi@kim.com" , "tel" : "010-1567-1234", "joined" : "2012-05-05"}
+]

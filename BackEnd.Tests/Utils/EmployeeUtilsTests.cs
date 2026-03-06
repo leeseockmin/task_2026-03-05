@@ -262,5 +262,105 @@ namespace BackEnd.Tests.Utils
             // Assert
             Assert.False(result);
         }
+
+        // =============================================
+        // RemoveNonNumeric 테스트
+        // =============================================
+
+        /// <summary>
+        /// [성공] 하이픈이 포함된 경우 — 숫자만 남기고 제거한다.
+        /// </summary>
+        [Fact]
+        public void RemoveNonNumeric_WithHyphens_ReturnsOnlyDigits()
+        {
+            // Arrange
+            var value = "010-2586";
+
+            // Act
+            var result = EmployeeUtils.RemoveNonNumeric(value);
+
+            // Assert
+            Assert.Equal("0102586", result);
+        }
+
+        /// <summary>
+        /// [성공] 점(.)이 포함된 경우 — 숫자만 남기고 제거한다.
+        /// </summary>
+        [Fact]
+        public void RemoveNonNumeric_WithDots_ReturnsOnlyDigits()
+        {
+            // Arrange
+            var value = "010.2586";
+
+            // Act
+            var result = EmployeeUtils.RemoveNonNumeric(value);
+
+            // Assert
+            Assert.Equal("0102586", result);
+        }
+
+        /// <summary>
+        /// [성공] 다양한 특수문자가 혼합된 경우 — 숫자만 남기고 제거한다.
+        /// </summary>
+        [Fact]
+        public void RemoveNonNumeric_WithMixedSpecialChars_ReturnsOnlyDigits()
+        {
+            // Arrange
+            var value = "+82-10-1234-5678";
+
+            // Act
+            var result = EmployeeUtils.RemoveNonNumeric(value);
+
+            // Assert
+            Assert.Equal("821012345678", result);
+        }
+
+        /// <summary>
+        /// [성공] 숫자만 있는 경우 — 입력값 그대로를 반환한다.
+        /// </summary>
+        [Fact]
+        public void RemoveNonNumeric_OnlyDigits_ReturnsSameValue()
+        {
+            // Arrange
+            var value = "0102586";
+
+            // Act
+            var result = EmployeeUtils.RemoveNonNumeric(value);
+
+            // Assert
+            Assert.Equal("0102586", result);
+        }
+
+        /// <summary>
+        /// [성공] 숫자가 없는 경우 — 빈 문자열을 반환한다.
+        /// </summary>
+        [Fact]
+        public void RemoveNonNumeric_NoDigits_ReturnsEmptyString()
+        {
+            // Arrange
+            var value = "abc-def";
+
+            // Act
+            var result = EmployeeUtils.RemoveNonNumeric(value);
+
+            // Assert
+            Assert.Equal(string.Empty, result);
+        }
+
+        /// <summary>
+        /// [성공] 빈 문자열 입력 — 빈 문자열을 반환한다.
+        /// </summary>
+        [Fact]
+        public void RemoveNonNumeric_EmptyString_ReturnsEmptyString()
+        {
+            // Arrange
+            var value = string.Empty;
+
+            // Act
+            var result = EmployeeUtils.RemoveNonNumeric(value);
+
+            // Assert
+            Assert.Equal(string.Empty, result);
+        }
     }
 }

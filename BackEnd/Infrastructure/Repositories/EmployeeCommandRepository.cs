@@ -26,6 +26,7 @@ namespace BackEnd.Infrastructure.Repositories
             }
 
             int affectedCount = 0;
+            DateTime updatedAt = DateTime.UtcNow;
 
             await _dbManager.ExecuteTransactionAsync(DataBaseManager.DBType.Write, async (connection, transaction) =>
             {
@@ -40,7 +41,7 @@ namespace BackEnd.Infrastructure.Repositories
                         sqlBuilder.Append(", ");
                     }
 
-                    sqlBuilder.Append($@"(@{nameof(Employee.name)}{i}, @{nameof(Employee.email)}{i}, @{nameof(Employee.tel)}{i}, @{nameof(Employee.joined)}{i}, @{nameof(Employee.createdAt)}{i})");
+                    sqlBuilder.Append($"(@{nameof(Employee.name)}{i}, @{nameof(Employee.email)}{i}, @{nameof(Employee.tel)}{i}, @{nameof(Employee.joined)}{i}, @{nameof(Employee.createdAt)}{i})");
 
                     parameters.Add($"{nameof(Employee.name)}{i}", employees[i].name);
                     parameters.Add($"{nameof(Employee.email)}{i}", employees[i].email);
@@ -49,16 +50,20 @@ namespace BackEnd.Infrastructure.Repositories
                     parameters.Add($"{nameof(Employee.createdAt)}{i}", employees[i].createdAt);
                 }
 
+                // email UNIQUE KEY 기준 — 중복 시 name / tel / joined / updatedAt 갱신
+                // createdAt 은 최초 등록 시각이므로 갱신하지 않습니다.
+                sqlBuilder.Append($@" ON DUPLICATE KEY UPDATE
+                    {nameof(Employee.name)}      = VALUES({nameof(Employee.name)}),
+                    {nameof(Employee.tel)}       = VALUES({nameof(Employee.tel)}),
+                    {nameof(Employee.joined)}    = VALUES({nameof(Employee.joined)}),
+                    {nameof(Employee.updatedAt)} = @updatedAt");
+
+                parameters.Add("updatedAt", updatedAt);
+
                 var sql = sqlBuilder.ToString();
                 affectedCount = await connection.ExecuteAsync(sql, parameters, transaction: transaction);
 
-                if (affectedCount != employees.Count)
-                {
-                    _logger.LogError($"일괄 삽입된 행 수가 입력된 직원 수와 다릅니다. AffectedCount: {affectedCount}, EmployeeCount: {employees.Count}");
-                    return false; // 롤백
-                }
-
-                return true; // 커밋
+                return true; // INSERT(1) / UPDATE(2) / 변경없음(0) 모두 유효
             });
 
             return affectedCount;

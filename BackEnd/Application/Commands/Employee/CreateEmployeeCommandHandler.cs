@@ -57,7 +57,7 @@ namespace BackEnd.Application.Commands.Employee
                     throw new ArgumentException($"email 형식이 올바르지 않습니다. 입력값: '{req.Email}'");
                 }
 
-                var normalizedTel = EmployeeUtils.RemoveTelHyphen(req.Tel ?? string.Empty);
+                var normalizedTel = EmployeeUtils.RemoveNonNumeric(req.Tel ?? string.Empty);
                 if (normalizedTel.Length > EmployeeConstants.TelMaxLength)
                 {
                     _logger.LogError($"tel 길이 초과. 입력값 길이: {normalizedTel.Length}");

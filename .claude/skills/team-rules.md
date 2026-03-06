@@ -193,7 +193,26 @@ public record ErrorResponse(string Message);
 
 ---
 
-## 7. 자가 점검 체크리스트
+## 7. 작업 완료 전 필수 절차
+
+작업을 완료로 표시하기 전에 **반드시** 아래 순서를 따릅니다.
+
+```
+1. dotnet build   → 경고 0개, 오류 0개 확인
+2. dotnet run     → 런타임 예외 없이 정상 실행 확인
+3. 두 단계 모두 통과한 경우에만 작업 완료 처리
+```
+
+| 단계 | 명령 | 기준 |
+|------|------|------|
+| 빌드 | `dotnet build {프로젝트경로}` | 오류 0개 (경고도 0개 목표) |
+| 실행 | `dotnet run --project {프로젝트경로}` | 런타임 예외 없이 정상 기동 |
+
+> **주의:** 빌드만 성공해도 완료가 아닙니다. 런타임 예외(NullReferenceException 등)까지 확인해야 합니다.
+
+---
+
+## 8. 자가 점검 체크리스트
 
 - [ ] 폴더 경로 표준 준수 (CommandRepo → `Repositories/`, QueryRepo → `Persistence/Read/`)
 - [ ] DBContext 이름 `{DB스키마명}DBContext` 형식

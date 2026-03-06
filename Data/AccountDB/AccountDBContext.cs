@@ -12,6 +12,8 @@ namespace DB.Data.AccountDB
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasCharSet("utf8mb4");
+
             var configureMethod = typeof(IModelCreateEntity).GetMethod("CreateModel");
 
             var entityTypes = typeof(AccountDBContext).Assembly.GetTypes()

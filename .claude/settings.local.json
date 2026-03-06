@@ -7,7 +7,11 @@
       "Bash(del:*)",
       "mcp__ide__getDiagnostics",
       "Bash(dotnet build:*)",
-      "Bash(dotnet test:*)"
+      "Bash(dotnet test:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(powershell:*)",
+      "Bash(dotnet restore:*)"
     ]
   }
 }

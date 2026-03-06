@@ -3,6 +3,7 @@ using System;
 using DB.Data.AccountDB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -11,16 +12,19 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Data.Migrations.AccountMigrations
 {
     [DbContext(typeof(AccountDBContext))]
-    [Migration("20260305140315_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260306113219_addIndexEmployee")]
+    partial class addIndexEmployee
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.22")
+                .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            MySqlModelBuilderExtensions.HasCharSet(modelBuilder, "utf8mb4");
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("DB.Data.AccountDB.Employee", b =>
                 {
@@ -28,26 +32,28 @@ namespace DB.Data.Migrations.AccountMigrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("employeeId"));
+
                     b.Property<DateTime>("createdAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("email")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
 
                     b.Property<DateTime>("joined")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
 
                     b.Property<string>("tel")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
 
                     b.Property<DateTime?>("updatedAt")
                         .HasColumnType("datetime(6)");
@@ -55,7 +61,6 @@ namespace DB.Data.Migrations.AccountMigrations
                     b.HasKey("employeeId");
 
                     b.HasIndex("name")
-                        .IsUnique()
                         .HasDatabaseName("IX_Employees_Name");
 
                     b.ToTable("Employee");

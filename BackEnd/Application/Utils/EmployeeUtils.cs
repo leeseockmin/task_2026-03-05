@@ -10,6 +10,12 @@ namespace BackEnd.Application.Utils
             return tel.Replace("-", string.Empty);
         }
 
+        /// <summary>숫자 이외의 모든 문자를 제거합니다.</summary>
+        public static string RemoveNonNumeric(string value)
+        {
+            return Regex.Replace(value, @"[^\d]", string.Empty);
+        }
+
         /// <summary>이메일 형식을 정규식으로 검증합니다.</summary>
         public static bool IsValidEmail(string email)
         {

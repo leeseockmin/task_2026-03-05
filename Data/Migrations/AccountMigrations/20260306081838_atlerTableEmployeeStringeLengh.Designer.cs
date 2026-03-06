@@ -4,6 +4,7 @@ using DB.Data.AccountDB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Data.Migrations.AccountMigrations
 {
     [DbContext(typeof(AccountDBContext))]
-    partial class AccountDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260306081838_atlerTableEmployeeStringeLengh")]
+    partial class atlerTableEmployeeStringeLengh
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,6 +61,7 @@ namespace DB.Data.Migrations.AccountMigrations
                     b.HasKey("employeeId");
 
                     b.HasIndex("name")
+                        .IsUnique()
                         .HasDatabaseName("IX_Employees_Name");
 
                     b.ToTable("Employee");
