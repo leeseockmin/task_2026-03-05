@@ -150,7 +150,7 @@ dotnet ef database update --context AccountDBContext -- --environment Developmen
 ---
 
 ### 방법 B — Visual Studio (Package Manager Console)
-`기본 Default 로 Https로 되어있는데 Http로 변경해서 진행'
+
 `도구 → NuGet 패키지 관리자 → 패키지 관리자 콘솔` 에서 실행합니다.
 
 > **기본 프로젝트(Default project)를 `BackEnd`로 설정 후 실행하세요.**
