@@ -26,8 +26,6 @@ namespace BackEnd.Infrastructure.Repositories
             }
 
             int affectedCount = 0;
-            DateTime updatedAt = DateTime.UtcNow;
-
             await _dbManager.ExecuteTransactionAsync(DataBaseManager.DBType.Write, async (connection, transaction) =>
             {
                 var sqlBuilder = new StringBuilder();
@@ -49,16 +47,6 @@ namespace BackEnd.Infrastructure.Repositories
                     parameters.Add($"{nameof(Employee.joined)}{i}", employees[i].joined);
                     parameters.Add($"{nameof(Employee.createdAt)}{i}", employees[i].createdAt);
                 }
-
-                // email UNIQUE KEY 기준 — 중복 시 name / tel / joined / updatedAt 갱신
-                // createdAt 은 최초 등록 시각이므로 갱신하지 않습니다.
-                sqlBuilder.Append($@" ON DUPLICATE KEY UPDATE
-                    {nameof(Employee.name)}      = VALUES({nameof(Employee.name)}),
-                    {nameof(Employee.tel)}       = VALUES({nameof(Employee.tel)}),
-                    {nameof(Employee.joined)}    = VALUES({nameof(Employee.joined)}),
-                    {nameof(Employee.updatedAt)} = @updatedAt");
-
-                parameters.Add("updatedAt", updatedAt);
 
                 var sql = sqlBuilder.ToString();
                 affectedCount = await connection.ExecuteAsync(sql, parameters, transaction: transaction);
