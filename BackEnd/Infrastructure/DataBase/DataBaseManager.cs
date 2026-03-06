@@ -2,7 +2,6 @@ using DB.Data.AccountDB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using System.Data.Common;
-using System.Transactions;
 
 namespace BackEnd.Infrastructure.DataBase
 {
@@ -59,7 +58,7 @@ namespace BackEnd.Infrastructure.DataBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "DB 실행 오류. DBType: {DBType}", dbType);
+                _logger.LogError($"DB 실행 오류. DBType: {dbType}. Message: {ex.Message}");
                 throw;
             }
             finally
@@ -79,7 +78,7 @@ namespace BackEnd.Infrastructure.DataBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "DB 실행 오류. DBType: {DBType}", dbType);
+                _logger.LogError($"DB 실행 오류. DBType: {dbType}. Message: {ex.Message}");
                 throw;
             }
             finally
@@ -103,7 +102,7 @@ namespace BackEnd.Infrastructure.DataBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "DB 실행 오류. DBType1: {DBType1}, DBType2: {DBType2}", dbType1, dbType2);
+                _logger.LogError($"DB 실행 오류. DBType1: {dbType1}, DBType2: {dbType2}. Message: {ex.Message}");
                 throw;
             }
             finally
@@ -113,24 +112,28 @@ namespace BackEnd.Infrastructure.DataBase
             }
         }
 
-        /// <summary>단일 DB 트랜잭션 실행. func가 true를 반환해야 커밋됩니다.</summary>
-        public virtual async Task ExecuteTransactionAsync(DBType dbType, Func<DbConnection, Task<bool>> func)
+        /// <summary>
+        /// 단일 DB 트랜잭션 실행.
+        /// func가 true를 반환하면 커밋, false를 반환하거나 예외 발생 시 롤백합니다.
+        /// </summary>
+        public virtual async Task ExecuteTransactionAsync(DBType dbType, Func<DbConnection, DbTransaction, Task<bool>> func)
         {
             await using var context = await GetDBContextAsync(dbType);
+            await context.Database.OpenConnectionAsync();
+            var connection = context.Database.GetDbConnection();
+            await using var transaction = await connection.BeginTransactionAsync();
             try
             {
-                using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-                await context.Database.OpenConnectionAsync();
-
-                bool isSuccess = await func(context.Database.GetDbConnection());
+                bool isSuccess = await func(connection, transaction);
                 if (isSuccess)
-                {
-                    scope.Complete();
-                }
+                    await transaction.CommitAsync();
+                else
+                    await transaction.RollbackAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "트랜잭션 오류. DBType: {DBType}", dbType);
+                await transaction.RollbackAsync();
+                _logger.LogError($"트랜잭션 오류. DBType: {dbType}. Message: {ex.Message}");
                 throw;
             }
             finally
@@ -141,27 +144,37 @@ namespace BackEnd.Infrastructure.DataBase
 
         /// <summary>
         /// 두 DB 트랜잭션 실행. dbType 순서와 func 파라미터 순서가 동일해야 합니다.
-        /// func가 true를 반환해야 커밋됩니다.
+        /// func가 true를 반환하면 커밋, false를 반환하거나 예외 발생 시 롤백합니다.
         /// </summary>
-        public virtual async Task ExecuteTransactionAsync(DBType dbType1, DBType dbType2, Func<DbConnection, DbConnection, Task<bool>> func)
+        public virtual async Task ExecuteTransactionAsync(DBType dbType1, DBType dbType2, Func<DbConnection, DbTransaction, DbConnection, DbTransaction, Task<bool>> func)
         {
             await using var context1 = await GetDBContextAsync(dbType1);
             await using var context2 = await GetDBContextAsync(dbType2);
+            await context1.Database.OpenConnectionAsync();
+            await context2.Database.OpenConnectionAsync();
+            var connection1 = context1.Database.GetDbConnection();
+            var connection2 = context2.Database.GetDbConnection();
+            await using var transaction1 = await connection1.BeginTransactionAsync();
+            await using var transaction2 = await connection2.BeginTransactionAsync();
             try
             {
-                using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-                await context1.Database.OpenConnectionAsync();
-                await context2.Database.OpenConnectionAsync();
-
-                bool isSuccess = await func(context1.Database.GetDbConnection(), context2.Database.GetDbConnection());
+                bool isSuccess = await func(connection1, transaction1, connection2, transaction2);
                 if (isSuccess)
                 {
-                    scope.Complete();
+                    await transaction1.CommitAsync();
+                    await transaction2.CommitAsync();
+                }
+                else
+                {
+                    await transaction1.RollbackAsync();
+                    await transaction2.RollbackAsync();
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "트랜잭션 오류. DBType1: {DBType1}, DBType2: {DBType2}", dbType1, dbType2);
+                await transaction1.RollbackAsync();
+                await transaction2.RollbackAsync();
+                _logger.LogError($"트랜잭션 오류. DBType1: {dbType1}, DBType2: {dbType2}. Message: {ex.Message}");
                 throw;
             }
             finally

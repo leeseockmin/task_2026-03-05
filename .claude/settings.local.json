@@ -6,7 +6,8 @@
       "Bash(tail:*)",
       "Bash(del:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)"
     ]
   }
 }

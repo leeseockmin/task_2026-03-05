@@ -1,4 +1,5 @@
 using BackEnd.Application.Commands.Employee;
+using BackEnd.Application.Constants;
 using BackEnd.Application.DTOs.Common;
 using BackEnd.Application.DTOs.Employee;
 using BackEnd.Application.Queries.Employee;
@@ -30,6 +31,7 @@ namespace BackEnd.Controllers
 
             if (result is null)
             {
+                _logger.LogError($"직원 조회 결과 없음. Name: {name}");
                 return NotFound(new ErrorResponse($"이름 '{name}'에 해당하는 직원이 없습니다."));
             }
 
@@ -42,12 +44,9 @@ namespace BackEnd.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetEmployeeListAsync([FromQuery] GetEmployeeListRequest request)
         {
-            if (request.Page < 1 || request.PageSize < 1)
+            if (request.Page < EmployeeConstants.PageMinValue || request.PageSize < EmployeeConstants.PageMinValue)
             {
-                _logger.LogWarning(
-                    "잘못된 페이지 파라미터. Page: {Page}, PageSize: {PageSize}",
-                    request.Page, request.PageSize);
-
+                _logger.LogError($"잘못된 페이지 파라미터. Page: {request.Page}, PageSize: {request.PageSize}");
                 return BadRequest(new ErrorResponse("page와 pageSize는 1 이상이어야 합니다."));
             }
 
@@ -55,16 +54,22 @@ namespace BackEnd.Controllers
             return Ok(result);
         }
 
-        /// <summary>직원을 등록합니다.</summary>
+        /// <summary>직원 목록을 일괄 등록합니다.</summary>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateEmployeeAsync([FromBody] CreateEmployeeRequest request)
+        public async Task<IActionResult> CreateEmployeeAsync([FromBody] List<CreateEmployeeRequest> request)
         {
-            await _mediator.Send(
-                new CreateEmployeeCommand(request.Name, request.Email, request.Tel, request.Joined));
-
-            return StatusCode(StatusCodes.Status201Created);
+            try
+            {
+                await _mediator.Send(new CreateEmployeeCommand(request));
+                return StatusCode(StatusCodes.Status201Created);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogError($"직원 일괄 등록 유효성 검사 실패. Message: {ex.Message}");
+                return BadRequest(new ErrorResponse(ex.Message));
+            }
         }
     }
 }

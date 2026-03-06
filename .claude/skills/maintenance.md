@@ -10,7 +10,7 @@ $ARGUMENTS
 
 ## 작업 전 확인 사항
 
-1. `senior-developer` 에이전트의 **팀 개발 룰** 확인
+1. `.claude/skills/team-rules.md` 파일을 읽고 **팀 개발 룰** 숙지
 2. 변경 대상 파일 전체를 읽고 영향 범위 파악
 3. Breaking change 발생 가능성 → 시니어 개발자에게 먼저 보고
 

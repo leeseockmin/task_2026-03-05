@@ -79,6 +79,21 @@ if (dbManager is null)
     throw new InvalidOperationException("DataBaseManager 초기화에 실패했습니다.");
 }
 
+// 최신 마이그레이션이 적용되지 않은 경우 서버 시작을 중단합니다.
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AccountDBContext>();
+    var pendingMigrations = (await context.Database.GetPendingMigrationsAsync()).ToList();
+    if (pendingMigrations.Count > 0)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<AccountDBContext>>();
+        logger.LogError($"미적용 마이그레이션이 있습니다: {string.Join(", ", pendingMigrations)}");
+        throw new InvalidOperationException(
+            $"미적용 마이그레이션이 있습니다. 서버를 시작하기 전에 마이그레이션을 적용하세요.\n" +
+            $"미적용 목록: {string.Join(", ", pendingMigrations)}");
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

@@ -1,0 +1,67 @@
+using BackEnd.Application.Interfaces.Employee;
+using DB.Data.AccountDB;
+using BackEnd.Infrastructure.DataBase;
+using Dapper;
+using System.Text;
+using System.Data.Common;
+
+namespace BackEnd.Infrastructure.Repositories
+{
+    public class EmployeeCommandRepository : IEmployeeCommandRepository
+    {
+        private readonly DataBaseManager _dbManager;
+        private readonly ILogger<EmployeeCommandRepository> _logger;
+
+        public EmployeeCommandRepository(DataBaseManager dbManager, ILogger<EmployeeCommandRepository> logger)
+        {
+            _dbManager = dbManager;
+            _logger = logger;
+        }
+
+        public async Task<int> BulkInsertAsync(List<Employee> employees)
+        {
+            if (employees.Count == 0)
+            {
+                return 0;
+            }
+
+            int affectedCount = 0;
+
+            await _dbManager.ExecuteTransactionAsync(DataBaseManager.DBType.Write, async (connection, transaction) =>
+            {
+                var sqlBuilder = new StringBuilder();
+                sqlBuilder.Append($@"INSERT INTO Employee ({nameof(Employee.name)}, {nameof(Employee.email)}, {nameof(Employee.tel)}, {nameof(Employee.joined)}, {nameof(Employee.createdAt)}) VALUES ");
+
+                var parameters = new DynamicParameters();
+                for (int i = 0; i < employees.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        sqlBuilder.Append(", ");
+                    }
+
+                    sqlBuilder.Append($@"(@{nameof(Employee.name)}{i}, @{nameof(Employee.email)}{i}, @{nameof(Employee.tel)}{i}, @{nameof(Employee.joined)}{i}, @{nameof(Employee.createdAt)}{i})");
+
+                    parameters.Add($"{nameof(Employee.name)}{i}", employees[i].name);
+                    parameters.Add($"{nameof(Employee.email)}{i}", employees[i].email);
+                    parameters.Add($"{nameof(Employee.tel)}{i}", employees[i].tel);
+                    parameters.Add($"{nameof(Employee.joined)}{i}", employees[i].joined);
+                    parameters.Add($"{nameof(Employee.createdAt)}{i}", employees[i].createdAt);
+                }
+
+                var sql = sqlBuilder.ToString();
+                affectedCount = await connection.ExecuteAsync(sql, parameters, transaction: transaction);
+
+                if (affectedCount != employees.Count)
+                {
+                    _logger.LogError($"일괄 삽입된 행 수가 입력된 직원 수와 다릅니다. AffectedCount: {affectedCount}, EmployeeCount: {employees.Count}");
+                    return false; // 롤백
+                }
+
+                return true; // 커밋
+            });
+
+            return affectedCount;
+        }
+    }
+}

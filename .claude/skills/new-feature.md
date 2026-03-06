@@ -11,7 +11,7 @@ $ARGUMENTS
 
 ## 구현 전 확인 사항
 
-1. `senior-developer` 에이전트의 **팀 개발 룰** 확인
+1. `.claude/skills/team-rules.md` 파일을 읽고 **팀 개발 룰** 숙지
 2. 기존에 동일한 엔티티/인터페이스가 있는지 확인
 3. 폴더 구조 표준 경로 확인
 

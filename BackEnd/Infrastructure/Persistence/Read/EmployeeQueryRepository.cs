@@ -3,7 +3,6 @@ using BackEnd.Application.Interfaces.Employee;
 using BackEnd.Infrastructure.DataBase;
 using DB.Data.AccountDB;
 using Dapper;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BackEnd.Infrastructure.Persistence.Read
 {
@@ -18,7 +17,7 @@ namespace BackEnd.Infrastructure.Persistence.Read
             _logger = logger;
         }
 
-        public async Task<IReadOnlyList<EmployeeDto>> GetListAsync(int page, int pageSize)
+        public async Task<List<EmployeeDto>> GetListAsync(int page, int pageSize)
         {
             return await _dbManager.ExecuteAsync(DataBaseManager.DBType.Read, async connection =>
             {
@@ -34,7 +33,7 @@ namespace BackEnd.Infrastructure.Persistence.Read
                     sql,
                     new { PageSize = pageSize, Offset = (page - 1) * pageSize });
 
-                return result.ToList().AsReadOnly();
+                return result.ToList();
             });
         }
 
@@ -42,7 +41,7 @@ namespace BackEnd.Infrastructure.Persistence.Read
         {
             return await _dbManager.ExecuteAsync(DataBaseManager.DBType.Read, async connection =>
             {
-                const string sql = "SELECT COUNT(*) FROM Employee";
+                const string sql = @"SELECT COUNT(*) FROM Employee";
                 return await connection.ExecuteScalarAsync<int>(sql);
             });
         }

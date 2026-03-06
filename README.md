@@ -153,8 +153,8 @@ dotnet restore
 ```json
 {
   "ConnectionStrings": {
-    "WriteConnection": "Server=localhost;Database=accountdb;User=backend_user;Password=비밀번호;",
-    "ReadConnection": "Server=localhost;Database=accountdb;User=backend_user;Password=비밀번호;"
+    "WriteConnection": "Server=localhost;Database=accountdb;User=backend_user;Password=비밀번호;CharSet=utf8mb4;",
+    "ReadConnection": "Server=localhost;Database=accountdb;User=backend_user;Password=비밀번호;CharSet=utf8mb4;"
   },
   "Serilog": {
     "MinimumLevel": {

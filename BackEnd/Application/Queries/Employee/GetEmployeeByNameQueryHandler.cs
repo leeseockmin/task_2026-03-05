@@ -19,7 +19,7 @@ namespace BackEnd.Application.Queries.Employee
 
         public async Task<EmployeeDto?> Handle(GetEmployeeByNameQuery request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("직원 이름 조회 쿼리. Name: {Name}", request.Name);
+            _logger.LogInformation($"직원 이름 조회 쿼리. Name: {request.Name}");
             return await _queryRepository.GetByNameAsync(request.Name);
         }
     }
