@@ -225,7 +225,8 @@ dotnet run
 ## 5. Swagger 확인
 
 ```
-https://localhost:{포트}/swagger
+실행은 항상 http로 진행해야 됩니다.
+http://localhost:{포트}/swagger
 ```
 
 포트는 `BackEnd/Properties/launchSettings.json`의 `applicationUrl` 항목에서 확인합니다.
